@@ -3,8 +3,17 @@ import BaseCard from './BaseCard.vue';
 import { onMounted, ref, useTemplateRef } from 'vue';
 import { Icon } from "@iconify/vue";
 import { faker } from "@faker-js/faker";
+import { useCookies } from '@vueuse/integrations/useCookies';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useFirebaseAuth } from 'vuefire';
+
+const cookies = useCookies();
+const firebaseAuth = useFirebaseAuth();
 
 const formUsername = ref('');
+const formPassword = ref('');
+const formPasswordConf = ref('');
+const formEmail = ref('');
 
 const registerPending = ref(false);
 
@@ -52,11 +61,42 @@ const randomUsername = () => {
 /**
  * Performs the registration
  */
-const doRegister = () => {
+const doRegister = async () => {
     // Lock the registration form
     registerPending.value = true;
 
-    // TODO: Do the registration
+    if(!(formPassword.value == formPasswordConf.value)) {
+        return; // TODO: Need to make an error stack
+    }
+
+    let resp = await fetch(
+        "https://delve.lognes.dev/users/register",
+        {
+            method: "POST",
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body : JSON.stringify({
+                email : formEmail.value,
+                username : formUsername.value.toLowerCase(),
+                display_name : formUsername.value,
+                password : formPassword.value
+            })
+        }
+    ).catch((err) => {
+        console.log(err); // TODO: Need to make an error stack
+    });
+
+    // NOTE: This status code might be better as a 201 (Created)
+    if(resp.status != 200){
+        return; // TODO: Need to make an error stack
+    }
+
+
+    // Login and set the cookie
+    let userCred = await signInWithEmailAndPassword(firebaseAuth, formEmail.value, formPassword.value);
+    
+    cookies.set("token", userCred.user.accessToken);
 
     // Unlock the registration form
     registerPending.value = false;
@@ -92,7 +132,7 @@ onMounted(() => {
                         <span class="font-bold">@</span>
                         <input class="grow" placeholder="AReallyCoolUsername123" v-model="formUsername" v-bind:disabled="registerPending"/>
                         <div class="tooltip" data-tip="Generate Random Username">
-                            <button class="btn btn-ghost btn-sm" @click="formUsername = randomUsername()">
+                            <button class="btn btn-ghost btn-sm" @click="formUsername = randomUsername()" v-bind:disabled="registerPending">
                                 <Icon icon="mdi:refresh" inline height="auto"/>
                             </button>
                         </div>
@@ -103,24 +143,27 @@ onMounted(() => {
                     <div class="label">
                         <span class="label-text">Email</span>
                     </div>
-                    <input class="input input-bordered" placeholder="ilovedelve@delve.com" ref="emailInput" v-bind:disabled="registerPending"/>
+                    <input class="input input-bordered" placeholder="ilovedelve@delve.com" ref="emailInput" 
+                        v-bind:disabled="registerPending" v-model="formEmail"/>
                 </div>
 
                 <div class="flex flex-col flex-grow">
                     <div class="label">
                         <span class="label-text">Password</span>
                     </div>
-                    <input class="input input-bordered" placeholder="************" type="password" v-bind:disabled="registerPending"/>
+                    <input class="input input-bordered" placeholder="************" type="password" 
+                        v-bind:disabled="registerPending" v-model="formPassword"/>
                 </div>
 
                 <div class="flex flex-col flex-grow">
                     <div class="label">
                         <span class="label-text">Confirm Password</span>
                     </div>
-                    <input class="input input-bordered" placeholder="************" type="password" v-bind:disabled="registerPending"/>
+                    <input class="input input-bordered" placeholder="************" type="password" 
+                        v-bind:disabled="registerPending" v-model="formPasswordConf"/>
                 </div>
 
-                <button class="btn btn-accent" :disabled="registerPending" @click="registerPending = !registerPending">
+                <button class="btn btn-accent" :disabled="registerPending" @click="doRegister">
                     <span v-if="!registerPending">Register</span>
                     <span v-else class="loading loading-spinner"></span>
                 </button>

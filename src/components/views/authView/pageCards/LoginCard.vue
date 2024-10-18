@@ -1,18 +1,43 @@
 <script setup lang="js">
-import { ref } from 'vue';
+import { onMounted, ref, useTemplateRef } from 'vue';
 import BaseCard from './BaseCard.vue';
+import { useFirebaseAuth } from 'vuefire';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useCookies } from "@vueuse/integrations/useCookies";
+
+const firebaseAuth = useFirebaseAuth();
+const cookies = useCookies();
 
 const loginPending = ref(false);
 
-const doLogin = () => {
+const emailData = ref(null);
+const passwordData = ref(null);
+
+const emailInput = useTemplateRef("emailInput");
+
+const doLogin = async () => {
     // Indicate that something is happening
     loginPending.value = true;
 
-    // TODO: Actual authentication stuff goes here
+    let userCred = await signInWithEmailAndPassword(firebaseAuth, emailData.value, passwordData.value).catch((err) => {
+        console.log(err);
+    })
+
+    if(!userCred.user.accessToken) {
+        return;
+    }
+
+    // Set the authentication token from firebase into a cookie
+    // httpOnly being true makes it so the user cant view their token
+    cookies.set("token", userCred.user.accessToken);
 
     // Cleanup
-    // loginPending.value = false;
+    loginPending.value = false;
 }
+
+onMounted(() => {
+    emailInput.value.focus();
+})
 
 </script>
 
@@ -33,7 +58,7 @@ const doLogin = () => {
                         <span class="label-text">Email</span>
                     </div>
                     <input class="input input-bordered" placeholder="ilovedelve@delve.com"
-                        v-bind:disabled="loginPending" />
+                        v-bind:disabled="loginPending" ref="emailInput" v-model="emailData"/>
                 </div>
 
                 <div class="flex flex-col flex-grow">
@@ -41,7 +66,7 @@ const doLogin = () => {
                         <span class="label-text">Password</span>
                     </div>
                     <input class="input input-bordered" placeholder="************" type="password"
-                        v-bind:disabled="loginPending" />
+                        v-bind:disabled="loginPending" v-model="passwordData"/>
                 </div>
 
                 <div>
