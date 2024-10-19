@@ -10,6 +10,8 @@ import { useFirebaseAuth } from 'vuefire';
 const cookies = useCookies();
 const firebaseAuth = useFirebaseAuth();
 
+const emit = defineEmits(["jumpToCard"]);
+
 const formUsername = ref('');
 const formPassword = ref('');
 const formPasswordConf = ref('');
@@ -100,6 +102,10 @@ const doRegister = async () => {
 
     // Unlock the registration form
     registerPending.value = false;
+
+    // Jumps to the "Signed In" card for redirection
+    emit("jumpToCard", 3);
+
 }
 
 onMounted(() => {

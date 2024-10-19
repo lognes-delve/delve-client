@@ -5,14 +5,18 @@ import RegisterCard from './pageCards/RegisterCard.vue';
 import SecretCard from './pageCards/SecretCard.vue';
 import { onMounted, ref } from 'vue';
 import { useCookies } from '@vueuse/integrations/useCookies';
+import SignedInCard from './pageCards/SignedInCard.vue';
 
 // Holds an id for whatever card is currently being shown
 const currentCardId = ref(0);
 const cookieCheckCompleted = ref(false);
 const cookies = useCookies();
 
-const ensureEmptyCookie = () => {
-    if(!cookies.get('token')) {
+const ensureEmptyCookie = async () => {
+
+    let userToken = cookies.get('token');
+
+    if(!userToken) {
         cookieCheckCompleted.value = true;
     }
 
@@ -22,8 +26,8 @@ const ensureEmptyCookie = () => {
     */
 }
 
-onMounted(() => {
-    ensureEmptyCookie();
+onMounted(async () => {
+    await ensureEmptyCookie();
 })
 
 </script>
@@ -41,6 +45,7 @@ onMounted(() => {
                 <WelcomeCard v-if="currentCardId === 0" @jumpToCard="(n) => currentCardId = n" />
                 <LoginCard v-else-if="currentCardId === 1" @jumpToCard="(n) => currentCardId = n" />
                 <RegisterCard v-else-if="currentCardId === 2" @jumpToCard="(n) => currentCardId = n" />
+                <SignedInCard v-else-if="currentCardId === 3" @jumpToCard="(n) => currentCardId = n" /> <!-- Has code to redirect to actual app -->
                 <SecretCard v-else @jumpToCard="(n) => currentCardId = n" />
             </Transition>
         </div>
@@ -50,7 +55,7 @@ onMounted(() => {
 <style lang="css" scoped>
 
 #card-container {
-    /* background: url("https://unsplash.com/photos/-heLWtuAN3c/download?force=true"); */
+    background: url("https://unsplash.com/photos/-heLWtuAN3c/download?force=true");
     background-position: center;
     background-size: cover;
 }

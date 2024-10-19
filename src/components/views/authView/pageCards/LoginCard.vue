@@ -8,6 +8,8 @@ import { useCookies } from "@vueuse/integrations/useCookies";
 const firebaseAuth = useFirebaseAuth();
 const cookies = useCookies();
 
+const emit = defineEmits(["jumpToCard"]);
+
 const loginPending = ref(false);
 
 const emailData = ref(null);
@@ -33,6 +35,10 @@ const doLogin = async () => {
 
     // Cleanup
     loginPending.value = false;
+
+    // Jumps to the "Signed In" card for redirection
+    emit("jumpToCard", 3);
+
 }
 
 onMounted(() => {
