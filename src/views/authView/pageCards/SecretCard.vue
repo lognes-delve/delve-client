@@ -1,6 +1,6 @@
 <script setup>
 import BaseCard from './BaseCard.vue';
-import burgerImg from './../../../../assets/images/secrets/burger.png';
+import burgerImg from './../../../assets/images/secrets/burger.png';
 </script>
 
 <template>

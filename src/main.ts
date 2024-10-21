@@ -7,10 +7,12 @@ import { VueFire, VueFireAuth } from 'vuefire';
 
 // Page Components
 
-import AuthView from './components/views/authView/AuthView.vue';
+import AuthView from './views/authView/AuthView.vue';
+import AppView from "./views/appView/AppView.vue";
 
 const routes = [
-    {path : "/", component: AuthView}
+    {path : "/", component: AuthView},
+    {path : "/app", component: AppView}
 ]
 
 const router = createRouter({

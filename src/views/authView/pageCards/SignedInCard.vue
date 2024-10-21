@@ -2,9 +2,11 @@
 import { onBeforeMount, onMounted, ref } from 'vue';
 import BaseCard from './BaseCard.vue';
 import { useCookies } from '@vueuse/integrations/useCookies';
+import { useRouter } from 'vue-router';
 
 const cookies = useCookies();
 const userData = ref(null);
+const router = useRouter();
 
 /* onBeforeMount to get the user's data before the webpage is mounted at all */
 onBeforeMount(async () => {
@@ -31,6 +33,18 @@ onBeforeMount(async () => {
     // Push the response we got into the ref
     userData.value = jsonResp;
 
+    // We do a little fake loading segment for aesthetics
+    // ( Also just to welcome to user politely :) 
+    setTimeout(
+        () => {
+            router.push('/app')
+                .catch((err) => {
+                    console.log(err); // Something went horribly wrong here
+                })
+        },
+        500 * 5 // 500ms * 5 = 5 seconds
+    )
+
 });
 
 </script>
@@ -51,8 +65,9 @@ onBeforeMount(async () => {
             <span class="my-8 loading loading-spinner"></span>
         </div>
 
-        <div v-else>
-            loading..
+        <div v-else
+            class="flex flex-col items-center">
+            <span class="my-8 loading loading-spinner"></span>
         </div>
 
     </BaseCard>

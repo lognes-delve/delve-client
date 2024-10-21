@@ -19,7 +19,8 @@
     "universal-cookie": "^7.2.1",
     "vue": "^3.3.4",
     "vue-router": "^4.4.3",
-    "vuefire": "^3.2.0"
+    "vuefire": "^3.2.0",
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.0.0",
