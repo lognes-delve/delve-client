@@ -3,10 +3,12 @@ import { onBeforeMount, onMounted, ref } from 'vue';
 import BaseCard from './BaseCard.vue';
 import { useCookies } from '@vueuse/integrations/useCookies';
 import { useRouter } from 'vue-router';
+import { stateStore } from '../../../store';
+import { getMe } from '../../../api/users';
 
 const cookies = useCookies();
 const userData = ref(null);
-const router = useRouter();
+const router = useRouter(); 
 
 /* onBeforeMount to get the user's data before the webpage is mounted at all */
 onBeforeMount(async () => {
@@ -18,20 +20,12 @@ onBeforeMount(async () => {
         return; // TODO: Redirect to the welcome card in the case of an error
     }
 
-    let resp = await fetch(
-        "https://delve.lognes.dev/users/me",
-        {
-            headers: {
-                "Content-Type" : "application/json",
-                "Authorization" : `Bearer ${accessToken}`
-            }
-        }
-    );
+    const resp = await getMe();
 
-    let jsonResp = await resp.json();
+    stateStore.commit('updateCurrentUserData', resp);
 
     // Push the response we got into the ref
-    userData.value = jsonResp;
+    userData.value = stateStore.state.currentUserData;
 
     // We do a little fake loading segment for aesthetics
     // ( Also just to welcome to user politely :) 

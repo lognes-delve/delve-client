@@ -4,6 +4,7 @@ import { createMemoryHistory, createRouter } from "vue-router";
 import "./index.css";
 import { initializeApp } from "firebase/app";
 import { VueFire, VueFireAuth } from 'vuefire';
+import Vuex from "vuex";
 
 // Page Components
 
@@ -34,4 +35,5 @@ createApp(App)
             ]
         }
     )
+    .use(Vuex)
     .mount("#app");

@@ -1,7 +1,8 @@
 <script setup lang="js">
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import { ref } from 'vue';
+import { ref, useTemplateRef } from 'vue';
 import { faker } from '@faker-js/faker';
+import { stateStore } from '../../../../store';
 
 const conversationStartersEnabled = ref(true);
 
@@ -42,6 +43,10 @@ const fetchRandomConversationStarters = () => {
     return faker.helpers.arrayElements(conversationStarters.value, 3);
 }
 
+const pushConversationStarterToChatbox = (text) => {
+    stateStore.commit("setChatboxContent", text);
+}
+
 </script>
 
 <template>
@@ -56,21 +61,36 @@ const fetchRandomConversationStarters = () => {
                 <p>Looks like you've reached the start of this channel, send a message and start a conversation!</p>        
             </div>
         </div>
-          
-    <div v-if="conversationStartersEnabled" class="flex flex-col gap-2">
-        <h2 class="flex flex-row gap-4 text-lg font-semibold">
-            <Icon class="text-accent" icon="mdi:sparkles" height="auto" inline />
-            <span>Don't know where to start?</span>
-        </h2>
-
-        <div class="flex flex-row gap-2 overflow-x-scroll overflow-y-hidden no-scrollbar">
-            <button v-for="cs in fetchRandomConversationStarters()" class="flex flex-row text-base-content btn btn-sm">
-                <Icon :icon="cs.icon" inline height="auto" />
-                <span>{{ cs.text }}</span>
-            </button>
+        
+    <Transition>
+        <div v-if="conversationStartersEnabled && !stateStore.state.currentChatboxContent" class="flex flex-col gap-2">
+            <h2 class="flex flex-row gap-4 text-lg font-semibold">
+                <Icon class="text-accent" icon="mdi:sparkles" height="auto" inline />
+                <span>Don't know where to start?</span>
+            </h2>
+    
+            <div class="flex flex-row gap-2 overflow-x-scroll overflow-y-hidden no-scrollbar">
+                <button v-for="cs in fetchRandomConversationStarters()" class="flex flex-row text-base-content btn btn-sm"
+                    @click="() => pushConversationStarterToChatbox(cs.text)">
+                    <Icon :icon="cs.icon" inline height="auto" />
+                    <span>{{ cs.text }}</span>
+                </button>
+            </div>
+    
         </div>
-
-    </div>
+    </Transition>
 
     </div>
 </template>
+
+<style lang="css" scoped>
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+</style>
