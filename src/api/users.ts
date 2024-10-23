@@ -26,3 +26,32 @@ export async function getUser(userId : String) : Promise<User> {
 
     return await resp.json() as Promise<User>;
 }
+
+type UserUpdateParams = {
+    display_name? : String,
+    username? : String,
+    bio? : String,
+    pronouns? : String
+}
+
+// Updates the user and returns the new user record
+export async function updateUser(update_params : UserUpdateParams) : Promise<User> {
+    const resp : Response = await wrappedFetch("/users/", {
+        method: "PATCH",
+        data : JSON.stringify({
+            display_name : (update_params.display_name) ? update_params.display_name : {},
+            username : (update_params.username) ? update_params.username : {},
+            bio : (update_params.bio) ? update_params.bio : {},
+            pronouns : (update_params.pronouns) ? update_params.pronouns : {}
+        })
+    });
+
+    return await resp.json() as Promise<User>;
+}
+
+export async function usernameCheck(username : String) : Promise<boolean> {
+    const resp : Response = await wrappedFetch(
+        "/users/username_check", {params: {"username" : username}});
+
+    return resp.status == 200;
+}
