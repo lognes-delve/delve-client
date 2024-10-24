@@ -12,7 +12,7 @@ const communities = ref([
 </script>
 
 <template>
-    <div class="flex flex-col items-center w-24 h-full gap-2 py-4 overflow-x-hidden overflow-y-scroll border-r bg-base-300 no-scrollbar border-r-accent-content">
+    <div class="flex flex-col items-center w-24 h-full gap-2 py-4 overflow-x-hidden overflow-y-scroll bg-base-300 no-scrollbar">
         <CommunityHomeIcon />
 
         <div class="mx-2.5 my-0 divider" />

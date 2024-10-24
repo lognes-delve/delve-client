@@ -14,7 +14,7 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-    <div class="flex flex-row items-center flex-shrink w-full gap-2 px-3 align-middle border border-l-0 min-h-16 bg-base-300 border-accent-content">
+    <div class="flex flex-row items-center flex-shrink w-full gap-2 px-3 align-middle min-h-16 bg-base-300">
         
         <UserbarAvatar :display_name="currentUser.display_name" />
         

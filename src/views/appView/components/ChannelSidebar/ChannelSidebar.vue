@@ -16,7 +16,7 @@ const communityName = ref("Benny's Den")
 </script>
 
 <template>
-    <div class="flex flex-col flex-grow w-full border-r bg-base-200 border-r-accent-content">
+    <div class="flex flex-col flex-grow w-full bg-base-200">
 
         <ChannelSidebarHeader :name="communityName" />
 

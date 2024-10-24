@@ -50,7 +50,7 @@ onMounted(() => {
 <template>
     <BaseCard>
         <div class="mb-4">
-            <h1 class="text-3xl font-bold text-accent">Login to Delve</h1>
+            <h1 class="text-3xl font-bold text-primary">Login to Delve</h1>
         </div>
 
         <div class="divider"></div>
@@ -82,7 +82,7 @@ onMounted(() => {
                     </label>
                 </div>
 
-                <button class="btn btn-accent" v-bind:disabled="loginPending" @click="doLogin">
+                <button class="btn btn-primary" v-bind:disabled="loginPending" @click="doLogin">
                     <span v-if="!loginPending">Login</span>
                     <span class="loading loading-spinner" v-else></span>
                 </button>

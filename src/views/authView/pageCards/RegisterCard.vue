@@ -121,7 +121,7 @@ onMounted(() => {
 <template>
     <BaseCard>
         <div class="mb-4">
-            <h1 class="text-3xl font-bold text-accent">Create your Account</h1>
+            <h1 class="text-3xl font-bold text-primary">Create your Account</h1>
         </div>
 
         <div class="divider"></div>
@@ -169,7 +169,7 @@ onMounted(() => {
                         v-bind:disabled="registerPending" v-model="formPasswordConf"/>
                 </div>
 
-                <button class="btn btn-accent" :disabled="registerPending" @click="doRegister">
+                <button class="btn btn-primary" :disabled="registerPending" @click="doRegister">
                     <span v-if="!registerPending">Register</span>
                     <span v-else class="loading loading-spinner"></span>
                 </button>

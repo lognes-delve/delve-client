@@ -18,7 +18,7 @@ import ChatView from './components/ChatView/ChatView.vue';
 
         </div>
 
-        <div class="flex flex-grow">
+        <div class="flex flex-grow base-100">
             <ChatView />
         </div>
         

@@ -10,7 +10,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <div class="flex flex-row p-4 border-b line-clamp-1 bg-base-300 border-b-accent-content">
+    <div class="flex flex-row p-4 mb-5 line-clamp-1 bg-base-300">
         
         <!-- The actual community title -->
         <div class="relative flex flex-row items-center flex-grow gap-1.5 font-semibold align-middle overflow-ellipsis line-clamp-1">
