@@ -49,3 +49,20 @@ export type Role = {
     created_at : Date;
     edited_at : Date;
 }
+
+export type MessageContent = {
+    text : String;
+}
+
+export type Message = {
+    id : String;
+    author_id : String;
+    channel_id : String;
+    community_id : String;
+    
+    content : MessageContent;
+    mentions : String[];
+    
+    created_at : Date;
+    edited_at : Date;
+}
