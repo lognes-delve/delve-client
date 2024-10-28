@@ -66,6 +66,7 @@ export type Message = {
 export type Member = {
     id : String;
     community_id : String;
+    user_id : String;
     
     role_ids : Array<String>[];
     nickname? : String;
