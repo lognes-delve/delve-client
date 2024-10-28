@@ -20,12 +20,8 @@ export type Community = {
     name : String;
     owner_id : String;
 
-    channels : Array<Channel>[];
-    roles : Array<Role>[];
-
-    member_count : Number;
-    channel_count : Number;
-    role_count : Number;
+    channel_ids : Array<String>[];
+    role_ids : Array<String>[];
 
     created_at : Date;
     edited_at : Date;
@@ -62,6 +58,17 @@ export type Message = {
     
     content : MessageContent;
     mentions : String[];
+    
+    created_at : Date;
+    edited_at : Date;
+}
+
+export type Member = {
+    id : String;
+    community_id : String;
+    
+    role_ids : Array<String>[];
+    nickname? : String;
     
     created_at : Date;
     edited_at : Date;
