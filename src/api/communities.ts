@@ -28,7 +28,7 @@ export async function createCommunity(
         "/communities",
         {
             method: "POST",
-            data : JSON.stringify(create_params)
+            body : JSON.stringify(create_params)
         }
     );
 

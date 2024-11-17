@@ -15,7 +15,7 @@ export async function createMessage(
         `/communities/${communityId}/channels/${channelId}/messages`,
         {
             method: "POST",
-            data : JSON.stringify(content)
+            body : JSON.stringify(content)
         }
     );
 
@@ -36,7 +36,7 @@ export async function getChannelMessages(
 ) : Promise<Message[]> {
 
     const resp : Response = await wrappedFetch(
-        `/communities/${communityId}/channels/${channelId}/messages` 
+        `/communities/${communityId}/channels/${channelId}/messages?` 
             + new URLSearchParams(options as Record<string, string>).toString()
     );
 
@@ -86,7 +86,7 @@ export async function updateMessage(
         `/communities/${communityId}/channels/${channelId}/messages/${messageId}`,
         {
             method : "PATCH",
-            data : JSON.stringify(update_params)
+            body : JSON.stringify(update_params)
         }
     );
 

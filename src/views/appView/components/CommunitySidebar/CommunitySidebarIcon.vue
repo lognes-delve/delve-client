@@ -1,17 +1,17 @@
 <script setup lang="js">
 
 const props = defineProps({
-    badge :  Number | Boolean
+    badge :  Number | Boolean,
+    active : Boolean
 })
-
-console.log(props.badge, props.badge instanceof Number);
 
 </script>
 
 <template>
 
     <div 
-        class="relative flex flex-col items-center justify-center w-16 h-16 transition-all duration-500 rounded-3xl bg-base-100 hover:ring-1 hover:ring-primary hover:rounded-md hover:cursor-pointer"
+        class="relative flex flex-col items-center justify-center w-16 h-16 transition-all duration-500 comm-sidebar-icon rounded-3xl bg-base-100 hover:ring-1 hover:ring-primary hover:rounded-md hover:cursor-pointer"
+        :data-active="active"
         >
 
         <!-- Adds an interface for a little tiny little cutesy notification badge in the bottom-right corner of the icon in the sidebar -->
@@ -23,3 +23,11 @@ console.log(props.badge, props.badge instanceof Number);
     </div>
 
 </template>
+
+<style scoped lang="scss">
+
+.comm-sidebar-icon[data-active="true"] {
+    @apply rounded-lg bg-primary text-primary-content;
+}
+
+</style>

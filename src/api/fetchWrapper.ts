@@ -1,6 +1,25 @@
 import { useCookies } from "@vueuse/integrations/useCookies";
+import { useFirebaseAuth } from "vuefire";
 
 const BASE_URL = "https://delve.lognes.dev"
+
+const refreshCookie = async () => {
+
+    const firebaseAuth = useFirebaseAuth();
+    const cookies = useCookies();
+
+    // It may be significantly easier to just use this in place of the manual cookie
+    // assignment but I don't want to break anything
+    const refreshed_jwt = await firebaseAuth?.currentUser?.getIdToken(true);
+
+    if (!refreshed_jwt) {
+        throw new Error("Failed to refresh token. Something has gone really wrong.")
+    }
+
+    cookies.set("token", refreshed_jwt);
+
+    return;
+}
 
 export async function wrappedFetch(endpoint : String, options : object = {}) : Promise<Response> {
 
@@ -8,27 +27,33 @@ export async function wrappedFetch(endpoint : String, options : object = {}) : P
     let additionalHeaders : Record<string, string> = {};
     const cookies = useCookies();
 
-    if (cookies.get("token")) {
-        additionalHeaders["Authorization"] = `Bearer ${cookies.get("token")}`;
-    };
-
-    const resp = await fetch(
-        `${BASE_URL}${endpoint}`,
+    
+    let resp = undefined;
+    
+    while (!resp)
         {
-            ...options,
-            headers: {
-                "Content-Type" : "application/json",
-                ...additionalHeaders
+
+        if (cookies.get("token")) {
+            additionalHeaders["Authorization"] = `Bearer ${cookies.get("token")}`;
+        };
+
+        resp = await fetch(
+            `${BASE_URL}${endpoint}`,
+            {
+                ...options,
+                headers: {
+                    "Content-Type" : "application/json",
+                    ...additionalHeaders
+                }
             }
-        }
-    );
+        );
 
-    console.log(resp.status);
+        if (!resp.ok && resp.status === 401) {
+            refreshCookie()
+                .catch((err) => {throw err;})
+        };
+    }
 
-    if (!resp.ok) {
-        throw new Error(`Something went wrong! ${resp.statusText}`)
-    };
-
-    return await resp.json() as Promise<Response>;
+    return resp;
 
 }

@@ -8,7 +8,9 @@ import { onBeforeMount, onMounted, ref } from 'vue';
 const currentUser = ref({});
 
 onBeforeMount(async () => {
-    currentUser.value = await getMe();
+    const me = await getMe();
+
+    currentUser.value = me;
 })
 
 </script>

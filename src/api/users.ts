@@ -1,5 +1,7 @@
+import { getIdToken } from "firebase/auth";
 import { wrappedFetch } from "./fetchWrapper.ts";
 import { User } from "./models.ts";
+import { useFirebaseAuth } from "vuefire";
 
 export async function getMe() : Promise<User> {
 
@@ -8,9 +10,9 @@ export async function getMe() : Promise<User> {
 
     // If the user isn't cached, get the user
     if(!cachedCurrentUser){
-        const resp : object = await wrappedFetch("/users/me");
+        const resp : Response = await wrappedFetch("/users/me");
 
-        const userData : User = resp as User; // what the hell
+        const userData : User = await resp.json() as User; // what the hell
 
         // Cache the current user's data to the session storage so I don't continuously query it
         sessionStorage.setItem("currentUser", JSON.stringify(userData));
@@ -19,6 +21,20 @@ export async function getMe() : Promise<User> {
     }
 
     return JSON.parse(cachedCurrentUser) as User;
+}
+
+export async function getUserJWT() : Promise<String> {
+
+    const firebaseAuth = useFirebaseAuth();
+
+    const token = await firebaseAuth?.currentUser?.getIdToken(true);
+
+    if (!token) {
+        throw Error("Failed to get token? WHAT?")
+    }
+
+    return token;
+
 }
 
 export async function getUser(userId : String) : Promise<User> {

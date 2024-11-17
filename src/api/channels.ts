@@ -26,7 +26,7 @@ export async function createChannel(
         `/communities/${communityId}/channels`,
         {
             method : "POST",
-            data : JSON.stringify(create_params)
+            body : JSON.stringify(create_params)
         }
     );
 
@@ -60,7 +60,7 @@ export async function updateChannel(
         `/communities/${communityId}/channels/${channelId}`,
         {
             method : "PATCH",
-            data : JSON.stringify(update_params)
+            body : JSON.stringify(update_params)
         }
     );
     

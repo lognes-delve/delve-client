@@ -74,3 +74,7 @@ export type Member = {
     created_at : Date;
     edited_at : Date;
 }
+
+export type MemberWithEmbeddedUser = Member & {
+    user: User;
+}

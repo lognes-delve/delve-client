@@ -1,4 +1,5 @@
 <script setup lang="js">
+import { Icon } from '@iconify/vue/dist/iconify.js';
 import { onMounted, ref, useTemplateRef } from 'vue';
 import BaseCard from './BaseCard.vue';
 import { useFirebaseAuth } from 'vuefire';
@@ -11,6 +12,7 @@ const cookies = useCookies();
 const emit = defineEmits(["jumpToCard"]);
 
 const loginPending = ref(false);
+const isInvalidLogin = ref(false);
 
 const emailData = ref(null);
 const passwordData = ref(null);
@@ -21,14 +23,21 @@ const doLogin = async () => {
     // Indicate that something is happening
     loginPending.value = true;
 
+    
     let userCred = await signInWithEmailAndPassword(firebaseAuth, emailData.value, passwordData.value).catch((err) => {
-        console.log(err);
+        loginPending.value = false;
+        isInvalidLogin.value = true;
+        emailInput.value.focus();
+        return;
     })
 
+    
     if(!userCred.user.accessToken) {
         return;
     }
-
+    
+    firebaseAuth.updateCurrentUser(userCred.user);
+    
     // Set the authentication token from firebase into a cookie
     // httpOnly being true makes it so the user cant view their token
     cookies.set("token", userCred.user.accessToken);
@@ -40,6 +49,7 @@ const doLogin = async () => {
     emit("jumpToCard", 3);
 
 }
+
 
 onMounted(() => {
     emailInput.value.focus();
@@ -54,6 +64,11 @@ onMounted(() => {
         </div>
 
         <div class="divider"></div>
+
+        <div class="alert alert-error text-error-content" role="alert" v-if="isInvalidLogin">
+            <Icon icon="mdi:error" inline height="1.5rem" />
+            <span class="text-sm font-semibold">Invalid Login!</span>
+        </div>
 
         <div class="flex flex-col flex-grow w-full gap-3">
 

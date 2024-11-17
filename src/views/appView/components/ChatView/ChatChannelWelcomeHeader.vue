@@ -40,7 +40,7 @@ const conversationStarters = ref([
 ])
 
 const fetchRandomConversationStarters = () => {
-    return faker.helpers.arrayElements(conversationStarters.value, 3);
+    return faker.helpers.arrayElements(conversationStarters.value, 5);
 }
 
 const pushConversationStarterToChatbox = (text) => {
@@ -50,36 +50,40 @@ const pushConversationStarterToChatbox = (text) => {
 </script>
 
 <template>
-    <div class="flex flex-col gap-8">
+    <div class="flex flex-col gap-8 mb-2.5" v-if="stateStore.getters.currentChannel">
         <div class="flex flex-row gap-4">
             <div class="flex flex-col items-center justify-center w-24 h-24 rounded-full max-w-24 max-h-24 bg-base-300">
                 <Icon icon="mdi:hand-wave" inline height="3rem"/>
             </div>
     
             <div class="flex flex-col justify-center">
-                <h1 class="text-2xl font-bold">Welcome to #channel</h1>
+                <h1 class="text-2xl font-bold">Welcome to #{{ stateStore.getters.currentChannel.name }}</h1>
                 <p>Looks like you've reached the start of this channel, send a message and start a conversation!</p>        
             </div>
         </div>
         
     <Transition>
         <div v-if="conversationStartersEnabled && !stateStore.state.currentChatboxContent" class="flex flex-col gap-2">
-            <h2 class="flex flex-row gap-4 text-lg font-semibold">
-                <Icon class="text-accent" icon="mdi:sparkles" height="auto" inline />
+            <h2 class="flex flex-row gap-4 px-2 text-lg font-semibold">
+                <Icon class="" icon="mdi:sparkles" height="auto" inline />
                 <span>Don't know where to start?</span>
             </h2>
     
-            <div class="flex flex-row gap-2 overflow-x-scroll overflow-y-hidden no-scrollbar">
+            <div class="flex flex-row flex-wrap gap-2 overflow-x-scroll overflow-y-hidden no-scrollbar">
                 <button v-for="cs in fetchRandomConversationStarters()" class="flex flex-row text-base-content btn btn-sm"
                     @click="() => pushConversationStarterToChatbox(cs.text)">
                     <Icon :icon="cs.icon" inline height="auto" />
                     <span>{{ cs.text }}</span>
                 </button>
             </div>
-    
         </div>
     </Transition>
 
+    </div>
+    <div class="mb-8 text-center" v-else>
+        
+        <span class="loading loading-spinner">
+        </span>
     </div>
 </template>
 
