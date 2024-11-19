@@ -8,8 +8,6 @@ const props = defineProps({
 
 const toggleMemberListView = () => {
     stateStore.commit('toggleMemberListView');
-
-    console.log(stateStore.state.showMemberListView);
 }
 
 </script>

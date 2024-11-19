@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 import CommunitySidebar from './components/CommunitySidebar/CommunitySidebar.vue';
 import ChannelSidebar from './components/ChannelSidebar/ChannelSidebar.vue';
 import Userbar from './components/Userbar/Userbar.vue';
@@ -9,6 +9,9 @@ import { getAllChannels } from '../../api/channels';
 import { stateStore } from '../../store';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import MemberListView from './components/MemberListView/MemberListView.vue';
+import { GatewayWebSocket } from '../../api/gateway/gateway';
+import { Community } from '../../api/models';
+import { HeartbeatResponse } from '../../api/gateway/events';
 
 const stateIsReady = ref(false);
 const specialStateEmptyUser = computed(
@@ -36,16 +39,57 @@ onBeforeMount(async () => {
     stateIsReady.value = true;
 })
 
+const gatewayWS : GatewayWebSocket = stateStore.state.gatewayWebsocket;
+
+gatewayWS.registerEventHandler(
+    "gateway_ready",
+    async (event) => {
+        stateStore.state.isGatewayReady = true;
+    }
+);
+
+gatewayWS.registerEventHandler(
+    "gateway_not_ready",
+    async (event) => {
+        stateStore.state.isGatewayReady = false;
+    }
+);
+
+gatewayWS.registerEventHandler(
+    "member_modified",
+    async (event) => {
+        stateStore.dispatch(
+            "upsertMemberList",
+            (event as { after: any}).after
+        )
+    }
+);
+
+gatewayWS.registerEventHandler(
+    "community_modified",
+    async (event) => {
+        stateStore.state.userCommunityList[(event as { community_id : string}).community_id] = (event as { after : Community}).after;
+    }
+);
+
+gatewayWS.registerEventHandler(
+    "heartbeat_request",
+    async (event) => {
+        await stateStore.state.gatewayWebsocket.sendEvent(
+            new HeartbeatResponse()
+        );
+    }
+)
 
 </script>
 
 <template>
-    <div id="app-view" class="relative flex flex-row w-full h-full overflow-x-hidden bg-base-100">
+    <div id="app-view" class="relative flex flex-row w-full h-full overflow-hidden bg-base-100">
 
         <Transition>
             <div 
                 class="absolute z-[1000] w-full h-full bg-base-100 flex flex-col justify-center items-center gap-2"
-                v-if="!stateIsReady"    
+                v-if="!stateIsReady || !stateStore.state.isGatewayReady"
             >
                 
                 <span class="text-3xl loading loading-spinner" />

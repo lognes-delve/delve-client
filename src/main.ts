@@ -5,7 +5,8 @@ import "./index.css";
 import { initializeApp } from "firebase/app";
 import { VueFire, VueFireAuth } from 'vuefire';
 import Vuex from "vuex";
-import { stateStore } from "./store";
+
+import { plugin, defaultConfig } from "@formkit/vue";
 
 // Page Components
 
@@ -27,7 +28,6 @@ export const firebaseApp = initializeApp({
 })
 
 createApp(App)
-    .use(router)
     .use(
         VueFire, {
             firebaseApp,
@@ -37,4 +37,6 @@ createApp(App)
         }
     )
     .use(Vuex)
+    .use(router)
+    .use(plugin, defaultConfig)
     .mount("#app");

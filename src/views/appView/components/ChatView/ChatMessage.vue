@@ -5,6 +5,9 @@ import moment from 'moment';
 import 'moment-timezone';
 import { stateStore } from '../../../../store';
 import { Message } from '../../../../api/models';
+import UserAvatar from '../Reusable/UserAvatar.vue';
+import Popper from 'vue3-popper';
+import UserPopoverCard from '../Reusable/UserPopoverCard.vue';
 
 const props = defineProps({
     message : Object as PropType<Message>
@@ -29,10 +32,9 @@ const rTime = computed(() => {
     return moment(props.message?.created_at).subtract("04:00:00").calendar();
 })
 
-const authorName = computed(() => {
-    const m = stateStore.getters.communityMemberLookup(props.message?.author_id);
-
-    return m.nickname ? m.nickname : m.user.display_name;
+const author = computed(() => {
+    const resp = stateStore.getters.communityMemberLookup(props.message?.author_id);
+    return resp;
 })
 
 const hasControlPermissions = computed(() => {
@@ -42,6 +44,30 @@ const hasControlPermissions = computed(() => {
 })
 
 const messageContentElem = useTemplateRef('message-content-ref')
+
+const messageCopiedIndicatorActive = ref(false);
+const copyMessageTextToClipboard = async () => {
+
+    // Ensure that the message has content (to avoid any weird errors)
+    if(!messageContentElem.value?.textContent){
+        return;
+    }
+
+    await navigator.clipboard.writeText(
+        messageContentElem.value?.textContent
+    );
+
+    // Switch to checkmark icon
+    messageCopiedIndicatorActive.value = true;
+
+    // Wait a little
+    await new Promise((resolve) => setTimeout(resolve, 750));
+
+    // Switch back to "copy" icon
+    messageCopiedIndicatorActive.value = false;
+
+    
+}
 
 onMounted(() => {
     const splitMentions = props.message?.content.text.split(/<@(\w+)>/g);
@@ -71,24 +97,24 @@ onMounted(() => {
     })
 })
 
+const emit = defineEmits(["promptDeleteMessage"])
+
 </script>
 
 <template>
-    <div class="flex flex-row gap-2 p-2.5 hover:bg-base-200 hover:cursor-pointer message rounded-md relative" v-bind:data-mention="mentionsYou">
-        <div class="">
-            <div class="flex avatar">
-                <div class="flex w-12 h-12 rounded-full bg-primary text-primary-content">
-                    <div class="inline-flex items-center justify-center w-full h-full text-2xl font-semibold">
-                        A
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="flex flex-row gap-2 p-2.5 hover:bg-base-200 message rounded-md relative" v-bind:data-mention="mentionsYou">
+        
+        <Popper placement="right-end">
+            <UserAvatar :user="author" v-if="author" class="hover:cursor-pointer"/>
+            <template #content>
+                <UserPopoverCard :user="author" />
+            </template>
+        </Popper>
 
         <div class="flex flex-col">
             <div class="flex flex-row items-baseline w-full gap-2">
                 <!-- TODO: Member display name lookup is needed here -->
-                <h3 class="font-semibold">{{ authorName }}</h3> 
+                <h3 class="font-semibold" v-if="author">{{ author.nickname ? author.nickname : author.user.display_name }}</h3> 
                 <span class="text-sm">{{ rTime }}</span>
             </div>
             
@@ -97,9 +123,14 @@ onMounted(() => {
         
         <div class="absolute -top-4 right-4 message-control-pane">
             <div class="join">
-                <button class="btn btn-sm join-item"><Icon icon="mdi:content-copy" inline height="1rem"/></button>
+                <button class="btn btn-sm join-item" @click="copyMessageTextToClipboard">
+                    <div class="swap swap-rotate" :class="messageCopiedIndicatorActive ? 'swap-active' : ''">
+                        <Icon class="swap-off" icon="mdi:content-copy" inline height="1rem"/>
+                        <Icon class="swap-on" icon="mdi:check" inline height="1rem"/>
+                    </div>
+                </button>
                 <button class="btn btn-sm join-item" v-if="hasControlPermissions"><Icon icon="mdi:pencil" inline height="1rem"/></button>
-                <button class="btn btn-sm join-item" v-if="hasControlPermissions"><Icon icon="mdi:trash" /></button>
+                <button class="btn btn-sm join-item" v-if="hasControlPermissions" @click="emit('promptDeleteMessage', props.message)"><Icon icon="mdi:trash" /></button>
             </div>
         </div>
     </div>

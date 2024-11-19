@@ -18,12 +18,15 @@ const ensureEmptyCookie = async () => {
 
     if(!userToken) {
         cookieCheckCompleted.value = true;
+        return;
     }
 
     /* 
         If this part of the code is ran, the user is already logged in
         and should be redirected inwards into the application
     */
+    cookieCheckCompleted.value = true;
+    currentCardId.value = 3;
 }
 
 onMounted(async () => {
@@ -60,7 +63,6 @@ onMounted(async () => {
     background-position: center;
     background-size: cover;
 }
-
 
 .switch-enter-from {
     opacity: 0;

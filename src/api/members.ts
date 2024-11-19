@@ -37,7 +37,7 @@ export async function getMemberList(
 }
 
 type UpdateMemberParams = {
-    nickname? : String
+    nickname? : string | null
 }
 
 export async function updateMember(
@@ -50,7 +50,7 @@ export async function updateMember(
         `/communities/${communityId}/members/${userId}`,
         {
             method : "PATCH",
-            data : JSON.stringify(update_params)
+            body : JSON.stringify(update_params)
         }
     );
 
@@ -66,5 +66,5 @@ export async function getMemberById(
         `/communities/${communityId}/members/${userId}`,
     );
 
-    return await resp.json() as Promise<Member>;
+    return await resp.json() as Promise<MemberWithEmbeddedUser>;
 }

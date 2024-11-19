@@ -10,18 +10,21 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@formkit/vue": "^1.6.9",
     "@tauri-apps/api": "^2.1.1",
     "@tauri-apps/plugin-notification": "^2.0.0",
     "@tauri-apps/plugin-shell": ">=2.0.0-rc.0",
     "@vueuse/core": "^11.1.0",
     "@vueuse/integrations": "^11.1.0",
     "firebase": "^10.14.1",
+    "hsl-to-hex": "^1.0.0",
     "moment": "^2.30.1",
     "moment-timezone": "^0.5.46",
     "postcss-cli": "^11.0.0",
     "universal-cookie": "^7.2.1",
     "vue": "^3.3.4",
     "vue-router": "^4.4.3",
+    "vue3-popper": "^1.5.0",
     "vuefire": "^3.2.0",
     "vuex": "^4.0.2"
   },

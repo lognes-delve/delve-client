@@ -13,3 +13,7 @@ export class StateResponse implements GatewayEvent {
         this.community_id = community_id;
     }
 }
+
+export class HeartbeatResponse implements GatewayEvent {
+    event : string = "heartbeat_response"
+}

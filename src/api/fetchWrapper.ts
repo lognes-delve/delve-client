@@ -29,8 +29,9 @@ export async function wrappedFetch(endpoint : String, options : object = {}) : P
 
     
     let resp = undefined;
+    let safety = 0;
     
-    while (!resp)
+    while (!resp && safety < 2)
         {
 
         if (cookies.get("token")) {
@@ -46,14 +47,16 @@ export async function wrappedFetch(endpoint : String, options : object = {}) : P
                     ...additionalHeaders
                 }
             }
-        );
-
-        if (!resp.ok && resp.status === 401) {
+        ).catch(() => {
             refreshCookie()
                 .catch((err) => {throw err;})
-        };
+            }
+        );
+
+        safety++;
+
     }
 
-    return resp;
+    return resp as Response;
 
 }

@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { ref, computed, useTemplateRef } from 'vue';
 import ChannelOption from './ChannelOption.vue';
 import ChannelSidebarHeader from './ChannelSidebarHeader.vue';
@@ -6,12 +6,9 @@ import { stateStore } from '../../../../store';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import ConfirmationDeletionModal from '../Modals/ConfirmationDeletionModal.vue';
 import { deleteChannel } from '../../../../api/channels';
-
-const activeChannel = computed(
-    () => {
-        return stateStore.state.currentViewingChannel;
-    }
-)
+import { Channel } from '../../../../api/models';
+import { GatewayWebSocket } from '../../../../api/gateway/gateway';
+import ModifyChannel from '../Modals/ModifyChannel.vue';
 
 const communityRef = computed(
     () => {
@@ -29,29 +26,46 @@ const communityRef = computed(
 )
 
 // TODO: swap this for the good dispatch thing 
-const setActiveChannel = async (channelId) => {
+const setActiveChannel = async (channelId : String) => {
     await stateStore.dispatch("viewThisCommunityAndChannel", {
         channelId : channelId,
         communityId : stateStore.state.currentViewingCommunity
     })
 }
 
-const deletingChannel = ref(null);
+const deletingChannel = ref<Channel | null>(null);
 const deleteChannelModal = useTemplateRef("delete_channel_modal");
 
-const showChannelDeletionModal = (channel) => {
+const showChannelDeletionModal = (channel : Channel) => {
     deletingChannel.value = channel;
 
-    console.log(deleteChannelModal);
-
+    
     deleteChannelModal.value.$el.showModal();
+}
+
+const modifyingChannel = ref<Channel | null>(null);
+const modifyingChannelModal = useTemplateRef("modify_channel_modal");
+const showChannelModifyModal = async (channel : Channel) => {
+
+    modifyingChannel.value = channel;
+
+    // Giving the ref some time to propogate will help remount the modal
+    // to prevent a weird glitch where you cant open it "immediately"
+    await new Promise((resolve) => setTimeout(resolve, 75));
+
+    modifyingChannelModal.value?.$el.showModal();
+
 }
 
 const doDeleteChannel = async () => {
     
+    if(!deletingChannel.value) {
+        return;
+    }
+
     await deleteChannel(
-        deletingChannel.value.community_id,
-        deletingChannel.value.id
+        deletingChannel.value.community_id as string,
+        deletingChannel.value.id as string
     );
 
     stateStore.commit("popChannelList", deletingChannel.value.id);
@@ -61,6 +75,47 @@ const doDeleteChannel = async () => {
     deletingChannel.value = null;
 
 }
+
+const gatewayWS : GatewayWebSocket = stateStore.state.gatewayWebsocket;
+
+gatewayWS.registerEventHandler(
+    "channel_created",
+    async (event) => {
+
+        // If the channel is already in the store, don't add it
+        if ((event as { channel_id : string}).channel_id in stateStore.state.communityChannelList) {
+            return;
+        }
+
+        // Push the channel to the list
+        stateStore.commit("appendChannelList", (event as { channel : Channel }).channel);
+    }
+)
+
+gatewayWS.registerEventHandler(
+    "channel_deleted",
+    async (event) => {
+
+        const channel_id = (event as {channel_id : string}).channel_id;
+
+        if (!(channel_id in stateStore.state.communityChannelList)) {
+            return;
+        }
+
+        stateStore.commit("popChannelList", channel_id);
+    }
+)
+
+gatewayWS.registerEventHandler(
+    "channel_modified",
+    async (event) => {
+
+        const channel_id = (event as {channel_id : string}).channel_id;
+
+        stateStore.state.communityChannelList[channel_id] = (event as {after : Channel}).after;
+
+    }
+)
 
 </script>
 
@@ -78,8 +133,10 @@ const doDeleteChannel = async () => {
                 <ChannelOption 
                     v-for="chan in Object.values(stateStore.state.communityChannelList)"
                     :channel="chan"
+                    :key="chan.id"
                     @click="setActiveChannel(chan.id)"
                     @deleteChannel="showChannelDeletionModal"
+                    @modifyChannel="showChannelModifyModal"
                 />
     
             </div>
@@ -104,6 +161,13 @@ const doDeleteChannel = async () => {
             @confirmed="doDeleteChannel"
             @cancelled="console.log('cancelled deletion of community')"
             />
+
+        <ModifyChannel 
+            :channel="(modifyingChannel as Channel)"
+            :key="(modifyingChannel?.id as string)"
+            ref="modify_channel_modal"
+            @closeMe="modifyingChannelModal?.$el.close()"
+        />
 
     </div>
 </template>

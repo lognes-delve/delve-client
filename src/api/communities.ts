@@ -64,7 +64,7 @@ export async function updateCommunity(communityId : String, update_params : Upda
         `/communities/${communityId}`,
         {
             method: "PATCH",
-            data : JSON.stringify(update_params)
+            body : JSON.stringify(update_params)
         }
     );
 

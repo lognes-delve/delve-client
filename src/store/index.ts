@@ -4,6 +4,7 @@ import { getAllChannels } from '../api/channels';
 import { getMemberList } from '../api/members';
 import { GatewayWebSocket } from '../api/gateway/gateway';
 import { StateResponse } from '../api/gateway/events';
+import { getUser } from '../api/users';
 
 type UpdateChannelViewPayload = {
     communityId : String,
@@ -196,6 +197,29 @@ export const stateStore = new Vuex.Store({
                     context.state.currentViewingCommunity
                 )
             );
-        }
+        },
+        async upsertMemberList(context : any, m : MemberWithEmbeddedUser | Member) : Promise<void> {
+            
+            let user; 
+
+            if ((m as Object).hasOwnProperty("user")) { // must be a MemberWithEmbeddedUser type
+                user = (m as MemberWithEmbeddedUser).user;
+                delete (m as { user? : User }).user;
+            }
+            else if((m.user_id as string) in context.state.memberList) { // must be a Member, check for already existing key
+                user = context.state.memberList[m.user_id as string].user
+            }
+            else { // Otherwise, query the user resource directly
+                user = await getUser(m.user_id);
+            }
+
+            const memberRef = {
+                ...m,
+                ...new Object({"user": user})
+            }
+
+            context.state.memberList[m.user_id as string] = memberRef;
+
+        },
     }
 });

@@ -2,13 +2,15 @@
 import { onBeforeMount, onMounted, ref } from 'vue';
 import BaseCard from './BaseCard.vue';
 import { useCookies } from '@vueuse/integrations/useCookies';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { stateStore } from '../../../store';
 import { getMe } from '../../../api/users';
 
 const cookies = useCookies();
 const userData = ref(null);
+
 const router = useRouter(); 
+const route = useRoute();
 
 /* onBeforeMount to get the user's data before the webpage is mounted at all */
 onBeforeMount(async () => {
@@ -31,10 +33,7 @@ onBeforeMount(async () => {
     // ( Also just to welcome to user politely :) 
     setTimeout(
         () => {
-            router.push('/app')
-                .catch((err) => {
-                    console.log(err); // Something went horribly wrong here
-                })
+            router.push({path : "/app"});
         },
         500 * 5 // 500ms * 5 = 5 seconds
     )

@@ -9,7 +9,7 @@ const props = defineProps({
     channel : Object as PropType<Channel>
 });
 
-const emit = defineEmits(["deleteChannel"]);
+const emit = defineEmits(["deleteChannel", "modifyChannel"]);
 
 </script>
 
@@ -27,7 +27,7 @@ const emit = defineEmits(["deleteChannel"]);
                 <Icon icon="mdi:dots-horizontal" inline height="1.25rem"/>
             </button>
             <ul tabindex="0" class="menu dropdown-content bg-base-100 text-primary rounded-box z-[1000] p2 w-52 shadow">
-                <li><a v-on:click.stop><Icon icon="mdi:cog" inline height="1.25rem"/> Edit Channel</a></li>
+                <li><a v-on:click.stop="$emit('modifyChannel', props.channel)"><Icon icon="mdi:cog" inline height="1.25rem"/> Edit Channel</a></li>
                 <li><a v-on:click.stop="$emit('deleteChannel', props.channel)" class="text-error"><Icon icon="mdi:trash" inline height="1.25rem"/> Delete Channel</a></li>
             </ul>
 

@@ -35,17 +35,13 @@ export class GatewayWebSocket {
         const cookies = useCookies()
         const token = cookies.get("token");
 
-        console.log(token);
-
         if (!token) {
             throw Error("Failed to authenticate user in gateway");
         }
 
-        if (!this.websocket) {
-            this.websocket = new WebSocket(
-                WEBSOCKET_ENDPOINT + "?" + new URLSearchParams({"token" : token})
-            )
-        }
+        this.websocket = new WebSocket(
+            WEBSOCKET_ENDPOINT + "?" + new URLSearchParams({"token" : token})
+        )
 
         this.websocket.addEventListener(
             "message", async (event : MessageEvent<any>) => {
@@ -75,7 +71,7 @@ export class GatewayWebSocket {
     }
 
     public async ensureWebsocketConnected() : Promise<void> {
-        if (this.websocket === undefined) {
+        if (this.websocket === undefined || this.websocket?.readyState != WebSocket.OPEN) {
             await this.connectWebsocket();
         }
 
