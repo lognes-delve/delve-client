@@ -1,6 +1,8 @@
 import { wrappedFetch } from "./fetchWrapper";
 import { Member, MemberWithEmbeddedUser } from "./models";
 
+/*
+// (( DEPRECATED CODE ))
 export async function joinCommunity(
     communityId : String
 ) : Promise<Member> {
@@ -12,6 +14,7 @@ export async function joinCommunity(
 
     return await resp.json() as Promise<Member>;
 }
+*/
 
 export async function leaveCommunity(
     communityId : String

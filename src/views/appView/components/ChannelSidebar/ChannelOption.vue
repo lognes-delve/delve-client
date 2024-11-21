@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import { PropType } from 'vue';
+import { computed, PropType } from 'vue';
 import { Channel } from '../../../../api/models';
 import { stateStore } from '../../../../store';
 
@@ -11,6 +11,13 @@ const props = defineProps({
 
 const emit = defineEmits(["deleteChannel", "modifyChannel"]);
 
+const isCurrentUserOwner = computed(() => {
+    const currentCommunity = stateStore.getters.currentCommunity;
+    const currentUser = stateStore.state.currentUserData;
+
+    return currentCommunity.owner_id === currentUser.id;
+})
+
 </script>
 
 <template>
@@ -19,10 +26,10 @@ const emit = defineEmits(["deleteChannel", "modifyChannel"]);
         v-bind:data-active="stateStore.state.currentViewingChannel === props.channel?.id"
     >
         <div class="flex flex-row flex-grow gap-2">
-            <Icon icon="mdi:hashtag" /> {{ props.channel?.name }}
+            <Icon icon="mdi:hashtag" inline height="1rem" /> {{ props.channel?.name }}
         </div>
 
-        <div class="dropdown dropdown-end">
+        <div class="dropdown dropdown-end" v-if="isCurrentUserOwner">
             <button class="btn btn-sm channel-settings-button" v-on:click.stop>
                 <Icon icon="mdi:dots-horizontal" inline height="1.25rem"/>
             </button>

@@ -103,6 +103,10 @@ gatewayWS.registerEventHandler(
         }
 
         stateStore.commit("popChannelList", channel_id);
+
+        if(channel_id === stateStore.state.currentViewingChannel) {
+            await stateStore.dispatch("viewThisCommunityIdcWhatChannel", stateStore.state.currentViewingCommunity);
+        }
     }
 )
 
@@ -128,6 +132,7 @@ gatewayWS.registerEventHandler(
             <div
                 id="channel-list-container" 
                 class="relative flex flex-col flex-grow mt-1"
+                v-if="Object.values(stateStore.state.communityChannelList).length > 0"
             >
     
                 <ChannelOption 
@@ -139,6 +144,16 @@ gatewayWS.registerEventHandler(
                     @modifyChannel="showChannelModifyModal"
                 />
     
+            </div>
+            <div
+                class="flex flex-col items-center justify-center w-full h-full" 
+                v-else
+            >
+                <div class="flex flex-col items-center justify-center gap-1">
+                    <Icon icon="mdi:circular-saw" inline height="2rem"/>
+                    <span class="text-md">Uh Oh! There's no channels in here!</span>
+                    <span class="text-xs">You can have a circular saw for your troubles.</span>
+                </div>
             </div>
         </div>
         <div

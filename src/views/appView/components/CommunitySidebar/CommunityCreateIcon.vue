@@ -1,16 +1,27 @@
 <script setup lang="js">
 import CommunitySidebarIcon from './CommunitySidebarIcon.vue';
-import CreateCommunity from '../Modals/CreateCommunity.vue';
+import JoinCommunity from '../Modals/JoinCommunity.vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import { useTemplateRef } from 'vue';
+import { useTemplateRef, ref } from 'vue';
 
-const create_community_modal = useTemplateRef('create_community_modal');
+const createCommunityModal = useTemplateRef('create_community_modal');
+
+const dialogCounter = ref(0);
+
+const closeModal = async () => {
+    createCommunityModal.value.$el.close();
+    dialogCounter.value = (dialogCounter.value + 1);
+}
 
 </script>
 
 <template>
-    <CommunitySidebarIcon @click="create_community_modal.$el.showModal()">
-        <CreateCommunity ref="create_community_modal"/>
+    <CommunitySidebarIcon @click="createCommunityModal.$el.showModal()">
+        <JoinCommunity 
+            ref="create_community_modal" 
+            :key="dialogCounter"
+            @closeMe="closeModal"
+        />
         <span>
             <Icon icon="mdi:plus-circle" inline height="auto"></Icon>
         </span>

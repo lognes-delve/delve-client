@@ -93,6 +93,12 @@ const gatewayWS : GatewayWebSocket = stateStore.state.gatewayWebsocket ;
 gatewayWS.registerEventHandler(
     "community_message_created",
     async (event : any) => {
+
+        // To avoid any circumstances where the message may still get through the state swap
+        if (event["message"]["channel_id"] !== stateStore.state.currentViewingChannel) {
+            return;
+        }
+        
         channelMessages.value.unshift(event["message"]);
     }
 );
@@ -184,6 +190,13 @@ gatewayWS.registerEventHandler(
                 />
             </TransitionGroup>
         </div>
+        <div 
+            class="flex flex-col items-center justify-center w-full h-full gap-8"
+            v-else-if="stateStore.state.currentViewingChannel === null"
+        >
+            <img id="floppa" src="https://static.wikia.nocookie.net/raise-a-floppa-roblox/images/d/da/Floppabath.png" />
+            <span class="text-2xl font-bold">MAKE A CHANNEL</span>
+        </div>
         <div v-else class="flex flex-col items-center justify-center w-full h-full">
             <span class="loading loading-spinner"></span>
         </div>
@@ -208,5 +221,43 @@ gatewayWS.registerEventHandler(
 .v-leave-to {
   opacity: 0;
   transform: scale(0.9);
+}
+
+@keyframes floppa-easter-egg {
+  0% {
+    transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  25% {
+    transform: matrix3d(
+      1.2, 0.2, 0, 0, 
+      -0.2, 0.8, 0, 0, 
+      0, 0, 1, 0, 
+      0, 0, 0, 1
+    ) rotateZ(10deg);
+  }
+  50% {
+    transform: matrix3d(
+      0.8, -0.3, 0, 0, 
+      0.3, 1.5, 0, 0, 
+      0, 0, 1, 0, 
+      0, 0, 0, 1
+    ) rotateY(180deg);
+  }
+  75% {
+    transform: matrix3d(
+      1.3, -0.1, 0, 0, 
+      0.1, 0.7, 0, 0, 
+      0, 0, 1, 0, 
+      0, 0, 0, 1
+    ) rotateZ(-15deg);
+  }
+  100% {
+    transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    filter: hue-rotate(360deg);
+  }
+}
+
+#floppa {
+    animation: floppa-easter-egg 4s infinite ;
 }
 </style>

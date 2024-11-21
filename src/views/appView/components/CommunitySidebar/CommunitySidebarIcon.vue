@@ -10,7 +10,7 @@ const props = defineProps({
 <template>
 
     <div 
-        class="relative flex flex-col items-center justify-center w-16 h-16 transition-all duration-500 comm-sidebar-icon rounded-3xl bg-base-100 hover:ring-1 hover:ring-primary hover:rounded-md hover:cursor-pointer"
+        class="relative flex flex-col items-center justify-center flex-grow flex-shrink-0 w-16 h-16 transition-all duration-500 max-w-16 max-h-16 comm-sidebar-icon rounded-3xl bg-base-100 hover:ring-1 hover:ring-primary hover:rounded-md hover:cursor-pointer"
         :data-active="active"
         >
 

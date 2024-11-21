@@ -8,20 +8,22 @@ import { stateStore } from '../../../../store';
 import ModifyMember from '../Modals/ModifyMember.vue';
 import ModifyCommunity from '../Modals/ModifyCommunity.vue';
 import { reset } from '@formkit/vue';
+import { leaveCommunity } from '../../../../api/members';
+import CreateInviteModal from '../Modals/CreateInviteModal.vue';
 
 const createChannelModal = useTemplateRef("create_channel_modal");
 const deleteCommunityModal = useTemplateRef("delete_community_modal");
+const leaveCommunityModal = useTemplateRef("leave_community_modal");
 const modifyMemberModal = useTemplateRef("modify_member_modal");
 const modifyCommunityModal = useTemplateRef("modify_community_modal");
+const createInviteModal = useTemplateRef("invite_users_modal")
 
-const pendingDeletion = ref(false);
 
 const currentUserIsOwner = computed(() => {
     return stateStore.getters.currentCommunity.owner_id === stateStore.state.currentUserData.id;
 })
 
 const doDeleteTheCommunity = async () => {
-    pendingDeletion.value = true;
 
     const resp = await deleteCommunity(props.communityId)
         .catch((e) => {
@@ -33,8 +35,20 @@ const doDeleteTheCommunity = async () => {
 
     await stateStore.dispatch("ohMyGodFindAChannelPlease");
 
-    pendingDeletion.value = false;
 }
+
+const doLeaveThatCommunity = async () => {
+
+    const resp = await leaveCommunity(
+        props.communityId
+    )
+
+    stateStore.commit("popCommunityList", props.communityId);
+    stateStore.commit("clearChannelList");
+
+    await stateStore.dispatch("ohMyGodFindAChannelPlease");
+
+} 
 
 const isCommunityModifyModalOpen = ref(false);
 const openCommunityModifyModal = async () => {
@@ -59,9 +73,6 @@ const props = defineProps({
         
         <!-- The actual community title -->
         <div class="relative flex flex-row items-center flex-grow gap-1.5 font-semibold align-middle overflow-ellipsis">
-            <span class="relative">
-                <Icon class="text-primary" icon="mdi:verified" height="1.25rem" inline/>
-            </span>
             <h1 class="line-clamp-1">
                 {{ props.name }}
             </h1>
@@ -71,8 +82,8 @@ const props = defineProps({
             <div tabindex="0" class="min-h-0 p-1 btn btn-ghost h-fit" role="button"><Icon icon="mdi-cog" height="auto" inline/></div>
             <ul tabindex="0" class="menu dropdown-content bg-base-100 rounded-box z-[1000] w-52 p-2 shadow">
                 <li><a  @click="modifyMemberModal.$el.showModal()"><Icon icon="mdi:user-edit" inline height="1.25rem"/> Change Nickname</a></li>
-                <li><a><Icon icon="mdi:user-add" inline height="1.25rem"/> Invite Users</a></li>
-                <li v-if="!currentUserIsOwner"><a class="text-error"><Icon icon="mdi:home-export-outline" inline height="1.25rem"/> Leave Community</a></li>
+                <li><a @click="createInviteModal.$el.showModal()"><Icon icon="mdi:user-add" inline height="1.25rem"/> Invite Users</a></li>
+                <li v-if="!currentUserIsOwner"><a class="text-error" @click="leaveCommunityModal.$el.showModal()"><Icon icon="mdi:home-export-outline" inline height="1.25rem"/> Leave Community</a></li>
 
                 <div v-if="currentUserIsOwner">
                     <div class="my-0 divider" />
@@ -103,6 +114,23 @@ const props = defineProps({
             @confirmed="doDeleteTheCommunity"
             @cancelled="console.log('cancelled deletion of community')"
             />
+
+        <ConfirmationDeletionModal
+            :title="`Leave ${props.name}?`"
+            :body="`You're about to leave ${props.name}, you'll be able to join back at any time using an invite link, but your membership will be reset. Are you sure you want to do this?`"
+            ref="leave_community_modal"
+            submitButtonText="Confirm"
+            @confirmed="doLeaveThatCommunity"
+            @cancelled="console.log('cancelled deletion of community')"
+        />
+
+        <CreateInviteModal 
+            ref="invite_users_modal"
+            :community="stateStore.getters.currentCommunity"
+            :key="`com-inv-${stateStore.getters.currentCommunity.id}`"
+            @closeMe="createInviteModal.$el.close()"
+        />
+
         <ModifyMember
             ref="modify_member_modal"
             :user="stateStore.getters.communityMemberLookup(stateStore.state.currentUserData.id)"

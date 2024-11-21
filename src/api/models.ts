@@ -78,3 +78,16 @@ export type Member = {
 export type MemberWithEmbeddedUser = Member & {
     user: User;
 }
+
+export type Invite = {
+    id : string;
+    community_id : string;
+    invite_code : string;
+    author_id : string;
+    
+    valid_days : Number;
+
+    created_at : Date;
+    edited_at : Date;
+    
+}

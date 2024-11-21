@@ -10,8 +10,9 @@ import { stateStore } from '../../store';
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import MemberListView from './components/MemberListView/MemberListView.vue';
 import { GatewayWebSocket } from '../../api/gateway/gateway';
-import { Community } from '../../api/models';
-import { HeartbeatResponse } from '../../api/gateway/events';
+import { Community, Member } from '../../api/models';
+import { HeartbeatResponse, StateResponse } from '../../api/gateway/events';
+import { getUser } from '../../api/users';
 
 const stateIsReady = ref(false);
 const specialStateEmptyUser = computed(
@@ -37,6 +38,10 @@ onBeforeMount(async () => {
     await new Promise(resolve => setTimeout(resolve, 250))
 
     stateIsReady.value = true;
+})
+
+onMounted(async () => {
+    await gatewayWS.ensureWebsocketConnected();
 })
 
 const gatewayWS : GatewayWebSocket = stateStore.state.gatewayWebsocket;
@@ -81,6 +86,70 @@ gatewayWS.registerEventHandler(
     }
 )
 
+gatewayWS.registerEventHandler(
+    "state_request",
+    async (event) => {
+        await stateStore.state.gatewayWebsocket.sendEvent(
+            new StateResponse(
+                stateStore.state.currentViewingChannel,
+                stateStore.state.currentViewingCommunity
+            )
+        )
+    }
+)
+
+gatewayWS.registerEventHandler(
+    "community_deleted",
+    async (event) => {
+        const formatted_event = event as {community_id : string};
+        
+        stateStore.commit("popCommunityList", formatted_event.community_id);
+        
+        if(stateStore.state.currentViewingCommunity === formatted_event.community_id) {
+            await stateStore.dispatch("ohMyGodFindAChannelPlease");
+        }
+
+    }
+)
+
+gatewayWS.registerEventHandler(
+    "left_community",
+    async (event : Object) => {
+        const formatted_event = event as { community_id : string, user_id : string };
+
+        const currentUserId = stateStore.state.currentUserData.id;
+        const currentCommunity = stateStore.state.currentViewingCommunity;
+
+        if(formatted_event.community_id === currentCommunity && currentUserId !== formatted_event.user_id) {
+            stateStore.commit("removeMemberList", formatted_event.user_id);
+        }
+        else if (formatted_event.user_id === currentUserId) {
+
+            if(formatted_event.community_id === currentCommunity) {
+                await stateStore.dispatch("ohMyGodFindAChannelPlease");
+            }
+            
+            stateStore.commit("popCommunityList", formatted_event.community_id);
+        }
+    }
+)
+
+gatewayWS.registerEventHandler(
+    "joined_community",
+    async (event : Object) => {
+        const formatted_event = event as {community_id : string, user_id : string, member : Member};
+
+        const currentCommunity = stateStore.state.currentViewingCommunity;
+
+        if(formatted_event.community_id === currentCommunity) {
+
+            const user = await getUser(formatted_event.user_id);
+
+            stateStore.commit("appendMemberList", {...formatted_event.member, user});
+        }
+    }
+)
+
 </script>
 
 <template>
@@ -97,7 +166,7 @@ gatewayWS.registerEventHandler(
             </div>
         </Transition>
 
-        <div class="relative z-50 flex flex-col">
+        <div class="relative z-50 flex flex-col overflow-visible">
             <CommunitySidebar />
         </div>
 
@@ -132,7 +201,7 @@ gatewayWS.registerEventHandler(
 
         <Transition name="member-list-slide">
             <div class="z-20 w-64 max-w-1/5 min-w-64 bg-base-300 overflow-show" id="memberListViewContainer" 
-                v-if="stateStore.state.showMemberListView && !stateStore.getters.isNoActiveCommunity">
+                v-show="stateStore.state.showMemberListView && !stateStore.getters.isNoActiveCommunity">
                 <MemberListView />
             </div>
         </Transition>

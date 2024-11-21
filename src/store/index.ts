@@ -90,7 +90,7 @@ export const stateStore = new Vuex.Store({
 
         appendMemberList(state : any, m : MemberWithEmbeddedUser) : void {
             const newMemberPart : Record<string, MemberWithEmbeddedUser> = {[m.user_id as string] : m};
-            state.memberList = {...state.memberList, newMemberPart};
+            state.memberList = {...state.memberList, ...newMemberPart};
         },
 
         removeMemberList(state : any, user_id : String) : void {
@@ -124,10 +124,12 @@ export const stateStore = new Vuex.Store({
 
             await context.dispatch("ensureSyncedCommunity", selectedCommunity.id);
 
+            const selectedChannel = (Object.values(context.state.communityChannelList) as Channel[])[0];
+
             context.commit(
                 "updateChannelView",
                 {
-                    channelId : (Object.values(context.state.communityChannelList) as Channel[])[0].id,
+                    channelId : selectedChannel ? selectedChannel.id : null,
                     communityId : selectedCommunity.id
                 }
             );
@@ -141,10 +143,12 @@ export const stateStore = new Vuex.Store({
             
             await context.dispatch("ensureSyncedCommunity", communityId);
             
+            const channel = (Object.values(context.state.communityChannelList) as Channel[])[0];
+
             context.commit(
                 "updateChannelView",
                 {
-                    channelId : (Object.values(context.state.communityChannelList) as Channel[])[0].id,
+                    channelId : channel ? channel.id : null,
                     communityId : communityId
                 }
             );

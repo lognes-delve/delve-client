@@ -105,7 +105,7 @@ const emit = defineEmits(["promptDeleteMessage"])
     <div class="flex flex-row gap-2 p-2.5 hover:bg-base-200 message rounded-md relative" v-bind:data-mention="mentionsYou">
         
         <Popper placement="right-end">
-            <UserAvatar :user="author" v-if="author" class="hover:cursor-pointer"/>
+            <UserAvatar :user="author" class="hover:cursor-pointer"/>
             <template #content>
                 <UserPopoverCard :user="author" />
             </template>
@@ -115,6 +115,7 @@ const emit = defineEmits(["promptDeleteMessage"])
             <div class="flex flex-row items-baseline w-full gap-2">
                 <!-- TODO: Member display name lookup is needed here -->
                 <h3 class="font-semibold" v-if="author">{{ author.nickname ? author.nickname : author.user.display_name }}</h3> 
+                <h3 class="font-semibold line-through text-base-content/50" v-else>Unknown User</h3>
                 <span class="text-sm">{{ rTime }}</span>
             </div>
             

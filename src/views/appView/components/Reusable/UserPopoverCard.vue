@@ -9,6 +9,10 @@ const props = defineProps({
 });
 
 const name_to_show = computed(() => {
+    
+    if (props.user === undefined) {
+        return "?";
+    }
 
     if((props.user as Object).hasOwnProperty("community_id")) {
         // must be a member...
@@ -21,6 +25,11 @@ const name_to_show = computed(() => {
 })
 
 const user_ref = computed(() => {
+
+    if (props.user === undefined) {
+        return "?";
+    }
+
     if((props.user as Object).hasOwnProperty("community_id")) {
         // must be a member...
         const u = props.user as MemberWithEmbeddedUser;
@@ -45,10 +54,24 @@ const user_ref = computed(() => {
 
         <div class="relative flex flex-col px-4 mb-4">
             <span class="text-lg font-semibold">
-                {{ name_to_show }}
+                <span v-if="user_ref !== '?'">
+                    {{ name_to_show }}
+                </span>
+                <span v-else>
+                    Unknown User
+                </span>
             </span>
-            <span class="text-sm">
+            <span class="text-sm" v-if="user_ref !== '?'">
                 @{{ user_ref.username }}
+            </span>
+            <span class="text-sm" v-else>
+                @unkown-user
+            </span>
+        </div>
+
+        <div class="p-2 bg-error text-error-content" v-if="user_ref === '?'">
+            <span>
+                This member is no longer here...
             </span>
         </div>
 

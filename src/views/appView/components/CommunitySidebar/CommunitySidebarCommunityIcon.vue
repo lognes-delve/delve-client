@@ -17,3 +17,12 @@ const props = defineProps({
     </CommunitySidebarIcon>
 
 </template>
+
+<style>
+.tooltip:after {
+    display: flex;
+    position: absolute;
+    z-index: 9999;
+    overflow: visible !important;
+}
+</style>
