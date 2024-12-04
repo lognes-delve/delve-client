@@ -1,5 +1,5 @@
 import Vuex from 'vuex';
-import { User, Community, Channel, Member, MemberWithEmbeddedUser } from "../api/models";
+import { User, Community, Channel, Member, MemberWithEmbeddedUser, FullMember } from "../api/models";
 import { getAllChannels } from '../api/channels';
 import { getMemberList } from '../api/members';
 import { GatewayWebSocket } from '../api/gateway/gateway';
@@ -225,5 +225,24 @@ export const stateStore = new Vuex.Store({
             context.state.memberList[m.user_id as string] = memberRef;
 
         },
+        checkForPermission(context : any, permission_key : String) : Boolean {
+
+            const currentUserMember : FullMember = context.getters.communityMemberLookup(
+                context.state.currentUserData.id
+            )
+
+            if(!currentUserMember) {
+                return false;
+            }
+
+            const comm : Community = context.getters.currentCommunity;
+
+            if(!comm) {
+                return false;
+            }
+
+            return (comm.owner_id === currentUserMember.user_id || (currentUserMember.permissions as Record<string, boolean>)[permission_key as string] === true)
+
+        }
     }
 });

@@ -58,15 +58,29 @@ const user_ref = computed(() => {
 
 const coloured_div = useTemplateRef("coloured_div");
 const findAvatarColour = () => {
-
+    
     const hue = algo_val.value % 360;
 
     coloured_div.value?.style.setProperty("--hue", hue.toString());
+
+    // We get a little silly and allow custom colours    
+    if (user_ref.value !== "?") {
+        if(user_ref.value.icon_primary != null) {
+            coloured_div.value?.style.setProperty('--primary-colour', "#" + user_ref.value.icon_primary?.toString(16).padStart(6, "0"));
+        }
+        if(user_ref.value.icon_secondary != null) {
+            coloured_div.value?.style.setProperty('--secondary-colour', "#" + user_ref.value.icon_secondary?.toString(16).padStart(6, "0"));
+        }
+    }
 }
 
 const avatarIcon = computed(() => {
-    if (!user_ref.value || !user_ref.value.id) {
+    if (!user_ref.value || !user_ref.value.id || user_ref.value === "?") {
         return iconSelection[0];
+    }
+
+    if (user_ref.value.icon_key) {
+        return user_ref.value.icon_key;
     }
 
     const mod = algo_val.value % iconSelection.length;
@@ -103,8 +117,11 @@ const divAClasses = computed(() => {
 }
 
 .coloured-bg-div {
-  background-color: hsl(var(--hue) 100% 75%);
-  color: hsl(calc(var(--hue) + 180) 100% 50%);
+    --primary-colour : hsl(var(--hue) 100% 75%);
+    --secondary-colour : hsl(calc(var(--hue) + 180) 100% 50%);
+    
+    background-color: var(--primary-colour);
+    color: var(--secondary-colour);
 }
 
 </style>

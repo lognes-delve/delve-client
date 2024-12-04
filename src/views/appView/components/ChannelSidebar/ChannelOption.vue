@@ -25,7 +25,7 @@ const isCurrentUserOwner = computed(() => {
         class="self-start justify-start w-full h-10 min-h-10 btn channel-button" 
         v-bind:data-active="stateStore.state.currentViewingChannel === props.channel?.id"
     >
-        <div class="flex flex-row flex-grow gap-2">
+        <div class="flex flex-row flex-grow gap-2 line-clamp-1">
             <Icon icon="mdi:hashtag" inline height="1rem" /> {{ props.channel?.name }}
         </div>
 

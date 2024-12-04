@@ -1,20 +1,6 @@
 import { wrappedFetch } from "./fetchWrapper";
-import { Member, MemberWithEmbeddedUser } from "./models";
+import { FullMember, Member, MemberWithEmbeddedUser } from "./models";
 
-/*
-// (( DEPRECATED CODE ))
-export async function joinCommunity(
-    communityId : String
-) : Promise<Member> {
-
-    const resp : Response = await wrappedFetch(
-        `/communities/${communityId}/members`,
-        {method : "POST"}
-    );
-
-    return await resp.json() as Promise<Member>;
-}
-*/
 
 export async function leaveCommunity(
     communityId : String
@@ -30,13 +16,13 @@ export async function leaveCommunity(
 
 export async function getMemberList(
     communityId : String
-) : Promise<MemberWithEmbeddedUser[]> {
+) : Promise<FullMember[]> {
 
     const resp : Response = await wrappedFetch(
         `/communities/${communityId}/members`,
     );
 
-    return await resp.json() as Promise<MemberWithEmbeddedUser[]>;
+    return await resp.json() as Promise<FullMember[]>;
 }
 
 type UpdateMemberParams = {
@@ -63,11 +49,11 @@ export async function updateMember(
 export async function getMemberById(
     communityId : String,
     userId : String
-) : Promise<MemberWithEmbeddedUser> {
+) : Promise<FullMember> {
 
     const resp : Response = await wrappedFetch(
         `/communities/${communityId}/members/${userId}`,
     );
 
-    return await resp.json() as Promise<MemberWithEmbeddedUser>;
+    return await resp.json() as Promise<FullMember>;
 }

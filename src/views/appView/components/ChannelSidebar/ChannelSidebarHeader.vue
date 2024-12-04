@@ -10,6 +10,7 @@ import ModifyCommunity from '../Modals/ModifyCommunity.vue';
 import { reset } from '@formkit/vue';
 import { leaveCommunity } from '../../../../api/members';
 import CreateInviteModal from '../Modals/CreateInviteModal.vue';
+import RoleManageModal from '../RoleManageModal/RoleManageModal.vue';
 
 const createChannelModal = useTemplateRef("create_channel_modal");
 const deleteCommunityModal = useTemplateRef("delete_community_modal");
@@ -17,6 +18,7 @@ const leaveCommunityModal = useTemplateRef("leave_community_modal");
 const modifyMemberModal = useTemplateRef("modify_member_modal");
 const modifyCommunityModal = useTemplateRef("modify_community_modal");
 const createInviteModal = useTemplateRef("invite_users_modal")
+const roleManageModal = useTemplateRef("role_manage_modal");
 
 
 const currentUserIsOwner = computed(() => {
@@ -93,6 +95,7 @@ const props = defineProps({
                     </a></li>
                     
                     <li><a @click="openCommunityModifyModal"><Icon icon="mdi:cog" inline height="1.25rem"/> Modify Community</a></li>
+                    <li><a @click="roleManageModal.$el.showModal()"><Icon icon="mdi:tag" inline height="1.25rem"/> Manage Roles</a></li>
     
                     <li><a class="text-error" @click="deleteCommunityModal.$el.showModal()">
                         <Icon icon="mdi:trash" inline height="1.25rem"/> Delete Community
@@ -137,6 +140,10 @@ const props = defineProps({
             :key="`mem-mod-${stateStore.getters.communityMemberLookup(stateStore.state.currentUserData.id).id}`"
             @closeMe="modifyMemberModal.$el.close()"
             />
+
+        <RoleManageModal 
+            ref="role_manage_modal"
+        />
 
         <ModifyCommunity 
             ref="modify_community_modal"
